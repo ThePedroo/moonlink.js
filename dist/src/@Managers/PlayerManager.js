@@ -34,7 +34,7 @@ class PlayerManager {
         this._manager.emit("debug", `@Moonlink(PlayerManager) - a player(${guildId}) was moved channel, resolving information`);
         this.cache[guildId].voiceChannel = newChannelId;
         if (this._manager.options.resume)
-            this.backup(this.cache[guildId]);
+            this.backup(guildId);
     }
     updateVoiceStates(guildId, update) {
         this.voices[guildId] = {
@@ -122,23 +122,22 @@ class PlayerManager {
     get all() {
         return this.cache ?? null;
     }
-    backup(player) {
-        const db = index_1.Structure.db;
-        let { guildId } = player;
-        const existingData = db.get(`players.${guildId}`) || {};
-        if (player.voiceChannel &&
-            player.voiceChannel !==
+    backup(guildId) {
+        const queue = this.cache[guildId].queue;
+        const existingData = queue.db.get(`players.${guildId}`) || {};
+        if (this.cache[guildId].voiceChannel &&
+            this.cache[guildId].voiceChannel !==
                 (existingData.voiceChannel && existingData.voiceChannel)) {
-            existingData.voiceChannel = player.voiceChannel;
+            existingData.voiceChannel = this.cache[guildId].voiceChannel;
         }
-        if (player.textChannel &&
-            player.textChannel !==
+        if (this.cache[guildId].textChannel &&
+            this.cache[guildId].textChannel !==
                 (existingData.textChannel && existingData.textChannel)) {
-            existingData.textChannel = player.textChannel;
+            existingData.textChannel = this.cache[guildId].textChannel;
         }
         if (existingData !==
-            (db.get(`players.${guildId}`) || {})) {
-            db.set(`players.${guildId}`, existingData);
+            (queue.db.get(`players.${guildId}`) || {})) {
+            queue.db.set(`players.${guildId}`, existingData);
         }
         return true;
     }

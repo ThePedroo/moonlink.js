@@ -61,7 +61,7 @@ export class PlayerManager {
             `@Moonlink(PlayerManager) - a player(${guildId}) was moved channel, resolving information`
         );
         this.cache[guildId].voiceChannel = newChannelId;
-        if (this._manager.options.resume) this.backup(this.cache[guildId]);
+        if (this._manager.options.resume) this.backup(guildId);
     }
 
     public updateVoiceStates(guildId: string, update: any): void {
@@ -187,31 +187,34 @@ export class PlayerManager {
     public get all(): Record<string, any> | null {
         return this.cache ?? null;
     }
-    public backup(player): boolean {
-        const db = Structure.db;
-        let { guildId } = player;
+    public backup(guildId): boolean {
+        const queue = this.cache[guildId].queue;
         const existingData =
-            db.get<PreviousInfosPlayer>(`players.${guildId}`) || {};
+            queue.db.get<PreviousInfosPlayer>(`players.${guildId}`) || {};
+
         if (
-            player.voiceChannel &&
-            player.voiceChannel !==
+            this.cache[guildId].voiceChannel &&
+            this.cache[guildId].voiceChannel !==
                 (existingData.voiceChannel && existingData.voiceChannel)
         ) {
-            existingData.voiceChannel = player.voiceChannel;
+            existingData.voiceChannel = this.cache[guildId].voiceChannel;
         }
 
         if (
-            player.textChannel &&
-            player.textChannel !==
+            this.cache[guildId].textChannel &&
+            this.cache[guildId].textChannel !==
                 (existingData.textChannel && existingData.textChannel)
         ) {
-            existingData.textChannel = player.textChannel;
+            existingData.textChannel = this.cache[guildId].textChannel;
         }
         if (
             existingData !==
-            (db.get<PreviousInfosPlayer>(`players.${guildId}`) || {})
+            (queue.db.get<PreviousInfosPlayer>(`players.${guildId}`) || {})
         ) {
-            db.set<PreviousInfosPlayer>(`players.${guildId}`, existingData);
+            queue.db.set<PreviousInfosPlayer>(
+                `players.${guildId}`,
+                existingData
+            );
         }
         return true;
     }

@@ -5,7 +5,7 @@ import {
     MoonlinkTrack,
     Structure
 } from "../../index";
-import { IPlayerData, connectOptions } from "../@Typings";
+import { IPlayerData, connectOptions} from "../@Typings";
 export class MoonlinkPlayer {
     public manager: MoonlinkManager = Structure.manager;
     public guildId: string;
@@ -53,7 +53,8 @@ export class MoonlinkPlayer {
         this.data = {};
         this.node = this.manager.nodes.get(data.node);
 
-        if (this.manager.options.resume) this.manager.players.backup(this);
+        if (this.manager.options.resume)
+            this.manager.players.backup(this.guildId);
     }
 
     /**
@@ -96,7 +97,8 @@ export class MoonlinkPlayer {
             channelId
         );
         this.textChannel = channelId;
-        if (this.manager.options.resume) this.manager.players.backup(this);
+        if (this.manager.options.resume)
+            this.manager.players.backup(this.guildId);
         return true;
     }
 
@@ -122,7 +124,8 @@ export class MoonlinkPlayer {
             channelId
         );
         this.voiceChannel = channelId;
-        if (this.manager.options.resume) this.manager.players.backup(this);
+        if (this.manager.options.resume)
+            this.manager.players.backup(this.guildId);
         return true;
     }
     /* Logic created by PiscesXD */
